@@ -155,3 +155,103 @@ with subst (x : string) (s : value) (c: comp) : comp :=
   | <{ handle c with h }> => <{ handle ([x:=s]c c) with ([x:=s]h h) }>
   end
 where "'[' x ':=' s ']c' c" := (subst x s c) (in custom freak).
+
+(* Helpers *)
+
+Fixpoint get_hreturn (h:handler) : hreturn :=
+  match h with
+  | handler_return hr => hr
+  | handler_op op h => get_hreturn h
+  end.
+
+Definition get_hreturn_var (h:hreturn) : string :=
+  match h with
+  | <{ #return x -> c }> => x
+  end.
+
+Definition get_hreturn_comp (h:hreturn) : comp :=
+  match h with
+  | <{ #return x -> c }> => c
+  end.
+
+Definition get_algop_param_var (op: algebraic_op) : string :=
+  match op with
+  | <{ # op , p , k |-> c }> => p
+  end.
+
+Definition get_algop_comp (op: algebraic_op) : comp :=
+  match op with
+  | <{ # op , p , k |-> c }> => c
+  end.
+
+Definition get_algop_cont_var (op: algebraic_op) : string :=
+  match op with
+  | <{ # op , p , k |-> c }> => k
+  end.
+
+Definition opL (op:algebraic_op) : string :=
+  match op with
+  | <{ # op , p , k |-> c }> => op
+  end.
+
+Hint Unfold eqb_string : core.
+Hint Unfold get_hreturn_var get_hreturn_comp
+            get_algop_cont_var get_algop_cont_var opL get_algop_comp : core.
+
+Fixpoint find_handler (h:handler) (op:string) : option algebraic_op :=
+  match h with
+  | handler_return hr => None
+  | handler_op algop h =>
+      if eqb_string op (opL algop)
+      then Some algop
+      else find_handler h op
+  end.
+
+Definition is_something {A: Type} (o: option A) : bool :=
+  match o with
+  | Some _ => true
+  | None => false
+  end.
+
+Hint Unfold is_something : core.
+
+(* Small-step operational semantics *)
+
+Reserved Notation "t '-->' t'" (at level 40).
+
+Inductive step : comp -> comp -> Prop :=
+  | step_app x c v :
+      <{ (\x -> c) v }> --> <{ [x:=v]c c }>
+  | step_if_true c1 c2 :
+      <{ if true then c1 else c2 }> --> c1
+  | step_if_false c1 c2 :
+      <{ if false then c1 else c2 }> --> c2
+  | step_let x c1 c1' c2 :
+      c1 --> c1' ->
+      <{ let x <- c1 in c2 }> --> <{ let x <- c1' in c2 }>
+  | step_let_return x v c :
+      <{ let x <- return v in c }> --> <{ [x:=v]c c }>
+  | step_handle h c c' :
+      c --> c' ->
+      <{ handle c with h }> --> <{ handle c' with h }>
+  | step_handle_return h v :
+      let x := get_hreturn_var (get_hreturn h) in
+      let cr := get_hreturn_comp (get_hreturn h) in
+      <{ handle (return v) with h }> -->
+      <{ [x:=v]c cr }>
+  | step_handle_op h op c algop v y :
+      (find_handler h op) = Some algop ->
+      let p := get_algop_param_var algop in
+      let op := opL algop in
+      let k := get_algop_cont_var algop in
+      let ci := get_algop_comp algop in
+      <{ handle (do y <- op @ v in c) with h }> -->
+      <{ [k:=\y -> handle c with h]c ([p:=v]c ci) }>
+  | step_handle_op_not_found h op c v y :
+      (find_handler h op) = None ->
+      <{ handle (do y <- op @ v in c) with h }> -->
+      <{ do y <- op @ v in (handle c with h) }>
+
+where "t '-->' t'" := (step t t').
+
+Hint Constructors step : core.
