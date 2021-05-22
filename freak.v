@@ -255,3 +255,23 @@ Inductive step : comp -> comp -> Prop :=
 where "t '-->' t'" := (step t t').
 
 Hint Constructors step : core.
+
+Definition relation (X : Type) := X -> X -> Prop.
+
+Inductive multi {X : Type} (R : relation X) : relation X :=
+  | multi_refl : forall (x : X), multi R x x
+  | multi_step : forall (x y z : X),
+                    R x y ->
+                    multi R y z ->
+                    multi R x z.
+
+Notation multistep := (multi step).
+Notation "t1 '-->*' t2" := (multistep t1 t2) (at level 40).
+
+Tactic Notation "print_goal" :=
+  match goal with |- ?x => idtac x end.
+
+Tactic Notation "normalize" :=
+  repeat (print_goal; eapply multi_step ;
+            [ (eauto 10; fail) | (instantiate; simpl)]);
+  apply multi_refl.
