@@ -4,64 +4,6 @@ From Freak Require Import Map.
 From Freak Require Import Language.
 From Freak Require Import Subst.
 
-(* Helpers *)
-
-Fixpoint get_hreturn (h:handler) : hreturn :=
-  match h with
-  | handler_return hr => hr
-  | handler_op op h => get_hreturn h
-  end.
-
-Definition get_hreturn_var (h:hreturn) : string :=
-  match h with
-  | <{ #return x -> c }> => x
-  end.
-
-Definition get_hreturn_comp (h:hreturn) : comp :=
-  match h with
-  | <{ #return x -> c }> => c
-  end.
-
-Definition get_algop_param_var (op: algebraic_op) : string :=
-  match op with
-  | <{ # op , p , k |-> c }> => p
-  end.
-
-Definition get_algop_comp (op: algebraic_op) : comp :=
-  match op with
-  | <{ # op , p , k |-> c }> => c
-  end.
-
-Definition get_algop_cont_var (op: algebraic_op) : string :=
-  match op with
-  | <{ # op , p , k |-> c }> => k
-  end.
-
-Definition opL (op:algebraic_op) : string :=
-  match op with
-  | <{ # op , p , k |-> c }> => op
-  end.
-
-Hint Unfold get_hreturn_var get_hreturn_comp
-            get_algop_cont_var get_algop_cont_var opL get_algop_comp : core.
-
-Fixpoint find_handler (h:handler) (op:string) : option algebraic_op :=
-  match h with
-  | handler_return hr => None
-  | handler_op algop h =>
-      if eqb_string op (opL algop)
-      then Some algop
-      else find_handler h op
-  end.
-
-Definition is_something {A: Type} (o: option A) : bool :=
-  match o with
-  | Some _ => true
-  | None => false
-  end.
-
-Hint Unfold is_something : core.
-
 (* Small-step operational semantics *)
 
 Definition state := total_map value.
