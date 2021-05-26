@@ -1,6 +1,9 @@
 Set Warnings "-notation-overridden,-parsing".
 From Coq Require Import Strings.String.
 
+Notation "x && y" := (andb x y).
+Notation "x || y" := (orb x y).
+
 (* Eqb string *)
 
 Definition eqb_string (x y : string) : bool :=
