@@ -1,6 +1,7 @@
 Set Warnings "-notation-overridden,-parsing".
 From Coq Require Import Strings.String.
 
+From Freak Require Import Language.
 From Freak Require Import freak.
 
 Module Tests.
