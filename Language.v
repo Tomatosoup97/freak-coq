@@ -165,7 +165,6 @@ Definition is_something {A: Type} (o: option A) : bool :=
   end.
 
 Hint Unfold is_something : core.
-
 Hint Unfold get_hreturn_var get_hreturn_comp
             get_algop_cont_var get_algop_cont_var opL get_algop_comp : core.
 

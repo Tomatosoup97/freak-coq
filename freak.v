@@ -36,8 +36,8 @@ Inductive step : (comp*state) -> (comp*state) -> Prop :=
       <{ [x:=v]c cr }> / st
   | step_handle_op h op c algop v y st :
       (find_handler h op) = Some algop ->
+      op = opL algop ->
       let p := get_algop_param_var algop in
-      let op := opL algop in
       let k := get_algop_cont_var algop in
       let ci := get_algop_comp algop in
       <{ handle (do y <- op @ v in c) with h }> / st -->
@@ -69,6 +69,7 @@ Tactic Notation "print_goal" :=
   match goal with |- ?x => idtac x end.
 
 Tactic Notation "normalize" :=
+  simpl;
   repeat (
     print_goal; eapply multi_step ;
     [ (eauto 10; autorewrite with core ; fail) |

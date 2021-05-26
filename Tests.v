@@ -2,6 +2,7 @@ Set Warnings "-notation-overridden,-parsing".
 From Coq Require Import Strings.String.
 
 From Freak Require Import Language.
+From Freak Require Import Map.
 From Freak Require Import freak.
 
 Module Tests.
@@ -11,6 +12,9 @@ Definition x : string := "x".
 Definition y : string := "y".
 Definition s : string := "s".
 Definition f : string := "f".
+Definition p : string := "p".
+Definition k : string := "k".
+Definition Const : string := "Const".
 Hint Unfold rnat : core.
 
 Example eval_nat: rnat 42 / {} -->* rnat 42 / {}.
@@ -53,6 +57,30 @@ Example static_scope :
     let y <- return 2 in f 3
   }> / {} -->* rnat 1 / {}.
 Proof. normalize. Qed.
+
+
+Example trivial_handler :
+  <{ handle return 1 with ( |r #return x -> return x ) }> / {}
+  -->* rnat 1 / {}.
+Proof. normalize. Qed.
+
+Example handler_return_overrite :
+  <{ handle return 1 with ( |r #return x -> return 2 ) }> / {}
+  -->* rnat 2 / {}.
+Proof. normalize. Qed.
+
+Example const_handler :
+  <{ handle
+        (do y <- Const @ 1 in return y)
+    with (
+        |o # Const , p , k |-> k 42 ;
+        |r #return x -> return x ) }> / {}
+  -->* rnat 42 / {}.
+Proof.
+    eapply multi_step.
+    - eapply step_handle_op. simpl. auto. auto.
+    - normalize.
+Qed.
 
 End Tests.
 
