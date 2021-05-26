@@ -3,7 +3,7 @@ From Coq Require Import Strings.String.
 
 From Freak Require Import Language.
 From Freak Require Import Map.
-From Freak Require Import freak.
+From Freak Require Import Semantics.
 
 Module Tests.
 
