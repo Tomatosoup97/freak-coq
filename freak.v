@@ -1,7 +1,6 @@
 Set Warnings "-notation-overridden,-parsing".
 From Coq Require Import Strings.String.
-
-Module Freak.
+From Freak Require Import Map.
 
 (* Syntax *)
 
@@ -116,15 +115,15 @@ Reserved Notation "'[' x ':=' s ']v' v" (in custom freak at level 20, x constr).
 Reserved Notation "'[' x ':=' s ']c' c" (in custom freak at level 20, x constr).
 Reserved Notation "'[' x ':=' s ']h' h" (in custom freak at level 20, x constr).
 
-Definition eqb_string (x y : string) : bool :=
-  if string_dec x y then true else false.
+Notation "x && y" := (andb x y).
+Notation "x || y" := (orb x y).
 
 Fixpoint subst_v (x : string) (s : value) (v: value) : value :=
   match v with
   | v_var y =>
-      if string_dec x y then s else v
+      if x =?s y then s else v
   | <{\y -> fb}> =>
-      if string_dec x y then v else <{\y -> [x:=s]c fb}>
+      if x =?s y then v else <{\y -> [x:=s]c fb}>
   | v_true => v_true
   | v_false => v_false
   end
@@ -133,9 +132,9 @@ where "'[' x ':=' s ']v' v" := (subst_v x s v) (in custom freak)
 with subst_h (x : string) (s : value) (h: handler) : handler :=
   match h with
   | <{ |r #return y -> c }> =>
-      if string_dec x y then h else <{ |r #return y -> [x:=s]c c }>
+      if x =?s y then h else <{ |r #return y -> [x:=s]c c }>
   | <{ |o # op , p , k |-> c ; h }> =>
-      if orb (eqb_string x op) (orb (eqb_string x p) (eqb_string x k))
+      if (x =?s op) || (x =?s p) || (x =?s k)
       then h
       else <{ |o # op , p , k |-> [x:=s]c c ; [x:=s]h h }>
   end
@@ -148,7 +147,7 @@ with subst (x : string) (s : value) (c: comp) : comp :=
   | <{ if v then c1 else c2 }> =>
       <{if ([x:=s]v v) then ([x:=s]c c1) else ([x:=s]c c2)}>
   | <{ let y <- c1 in c2 }> =>
-      if string_dec x y
+      if x =?s y
       then <{ let y <- [x:=s]c c1 in c2 }>
       else <{ let y <- [x:=s]c c1 in [x:=s]c c2 }>
   | <{ do y <- op @ v in c }> => <{ do y <- op @ ([x:=s]v v) in ([x:=s]c c) }>
@@ -194,7 +193,6 @@ Definition opL (op:algebraic_op) : string :=
   | <{ # op , p , k |-> c }> => op
   end.
 
-Hint Unfold eqb_string : core.
 Hint Unfold get_hreturn_var get_hreturn_comp
             get_algop_cont_var get_algop_cont_var opL get_algop_comp : core.
 
