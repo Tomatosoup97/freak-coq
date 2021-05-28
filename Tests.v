@@ -154,5 +154,29 @@ Proof.
       simpl. normalize.
 Qed.
 
+(* Test Opt *)
+
+Example opt_st_example :
+  opt_st <{
+    let f <- handle
+        do y <- Put @ 2 in
+        do x <- Get @ true in
+        return x
+      with state_handler
+    in f 1
+  }> = <{
+    let f <- handle
+        return (\s ->
+          let coalgPutGet <- return s in
+          let coalgPutGet <- return 2 in
+          let y <- return true in
+          let x <- return coalgPutGet in
+          return x
+        )
+      with identity_handler
+    in f 1
+  }>.
+Proof. auto. Qed.
+
 End Tests.
 
