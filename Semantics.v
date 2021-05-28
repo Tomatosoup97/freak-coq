@@ -67,7 +67,7 @@ Tactic Notation "normalize" :=
   simpl;
   repeat (
     print_goal; eapply multi_step ;
-    [ (eauto 10; autorewrite with core ; fail) |
+    [ (eauto 10; fail) |
       (instantiate; simpl)] ;
     autorewrite with core
   );
