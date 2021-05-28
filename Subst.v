@@ -43,8 +43,6 @@ with subst (x : string) (s : value) (c: comp) : comp :=
       if x =?s y
       then <{ let y <- [x:=s]c c1 in c2 }>
       else <{ let y <- [x:=s]c c1 in [x:=s]c c2 }>
-    (* TODO: separate space for imp / func vars? *)
-  | <{ y ::= v }> => <{ y ::= ([x:=s]v v) }>
   | <{ do y <- op @ v in c }> => <{ do y <- op @ ([x:=s]v v) in ([x:=s]c c) }>
   | <{ handle c with h }> => <{ handle ([x:=s]c c) with ([x:=s]h h) }>
   end

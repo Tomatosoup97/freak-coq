@@ -6,48 +6,43 @@ From Freak Require Import Subst.
 
 (* Small-step operational semantics *)
 
-Definition state := total_map value.
-Notation "'{}'" := (t_empty (v_nat 0)).
+Reserved Notation " t '-->' t' "
+                  (at level 40, t' at level 39).
 
-Reserved Notation " t / st '-->' t' / st' "
-                  (at level 40, st at level 39, t' at level 39).
-
-Inductive step : (comp*state) -> (comp*state) -> Prop :=
-  | step_app x c v st :
-      <{ (\x -> c) v }> / st --> <{ [x:=v]c c }> / st
-  | step_if_true c1 c2 st :
-      <{ if true then c1 else c2 }> / st --> c1 / st
-  | step_if_false c1 c2 st :
-      <{ if false then c1 else c2 }> /st --> c2 / st
-  | step_let x c1 c1' c2 st st':
-      c1 / st --> c1' / st' ->
-      <{ let x <- c1 in c2 }> / st --> <{ let x <- c1' in c2 }> / st'
-  | step_let_return x v c st :
-      <{ let x <- return v in c }> / st --> <{ [x:=v]c c }> / st
-  | step_assgn x v st :
-      <{ x ::= v }> / st --> <{ return v }> / (x !-> v ; st)
-  | step_handle h c c' st st' :
-      c / st --> c' / st' ->
-      <{ handle c with h }> / st --> <{ handle c' with h }> / st'
-  | step_handle_return h v st :
+Inductive step : comp -> comp -> Prop :=
+  | step_app x c v :
+      <{ (\x -> c) v }> --> <{ [x:=v]c c }>
+  | step_if_true c1 c2 :
+      <{ if true then c1 else c2 }> --> c1
+  | step_if_false c1 c2 :
+      <{ if false then c1 else c2 }> --> c2
+  | step_let x c1 c1' c2 :
+      c1 --> c1' ->
+      <{ let x <- c1 in c2 }> --> <{ let x <- c1' in c2 }>
+  | step_let_return x v c :
+      <{ let x <- return v in c }> --> <{ [x:=v]c c }>
+  | step_handle h c c' :
+      c --> c' ->
+      <{ handle c with h }> --> <{ handle c' with h }>
+  | step_handle_return h v :
       let x := get_hreturn_var (get_hreturn h) in
       let cr := get_hreturn_comp (get_hreturn h) in
-      <{ handle (return v) with h }> / st -->
-      <{ [x:=v]c cr }> / st
-  | step_handle_op h op c algop v y st :
+      <{ handle (return v) with h }> -->
+      <{ [x:=v]c cr }>
+  | step_handle_op h op c algop v y :
       (find_handler h op) = Some algop ->
       op = opL algop ->
       let p := get_algop_param_var algop in
       let k := get_algop_cont_var algop in
       let ci := get_algop_comp algop in
-      <{ handle (do y <- op @ v in c) with h }> / st -->
-      <{ [k:=\y -> handle c with h]c ([p:=v]c ci) }> / st
-  | step_handle_op_search h op c v y st :
+      <{ handle (do y <- op @ v in c) with h }> -->
+      <{ [k:=\y -> handle c with h]c ([p:=v]c ci) }>
+  | step_handle_op_search h op c v y :
       (find_handler h op) = None ->
-      <{ handle (do y <- op @ v in c) with h }> / st -->
-      <{ do y <- op @ v in (handle c with h) }> / st
+      <{ handle (do y <- op @ v in c) with h }> -->
+      <{ do y <- op @ v in (handle c with h) }>
 
-where "t / s '-->' t' / s' " := (step (t,s) (t',s')).
+where "t '-->' t' " := (step t t').
 
 Hint Constructors step : core.
 
@@ -61,9 +56,9 @@ Inductive multi {X : Type} (R : relation X) : relation X :=
                     multi R x z.
 
 Notation multistep := (multi step).
-Notation "t1 / st1 '-->*' t2 / st2" :=
-  (multistep (t1, st1) (t2, st2))
-  (at level 40, st1 at level 39, t2 at level 39).
+Notation "t1 '-->*' t2 " :=
+  (multistep t1 t2)
+  (at level 40, t2 at level 39).
 
 Tactic Notation "print_goal" :=
   match goal with |- ?x => idtac x end.

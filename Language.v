@@ -19,7 +19,6 @@ with comp : Type :=
   | c_let : string -> comp -> comp -> comp
   | c_op : string -> value -> string -> comp -> comp
   | c_handle : comp -> handler -> comp
-  | c_assgn : string -> value -> comp
 
 with hreturn : Type :=
     hr_ret : string -> comp -> hreturn
@@ -75,10 +74,6 @@ Notation "'let' x <- c1 'in' c2" :=
                     x custom freak at level 99,
                     c1 custom freak at level 99,
                     c2 custom freak at level 99,
-                    left associativity).
-
-Notation "x '::=' c" :=
-  (c_assgn x c) (in custom freak at level 91,
                     left associativity).
 
 Notation "'#return' x '->' c" :=
