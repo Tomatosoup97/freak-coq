@@ -21,6 +21,9 @@ Inductive step : comp -> comp -> Prop :=
       <{ let x <- c1 in c2 }> --> <{ let x <- c1' in c2 }>
   | step_let_return x v c :
       <{ let x <- return v in c }> --> <{ [x:=v]c c }>
+  | step_let_op op v x y c1 c2 :
+      <{ let x <- (do y <- op @ v in c1) in c2 }> -->
+      <{ do y <- op @ v in (let x <- c1 in c2) }>
   | step_handle h c c' :
       c --> c' ->
       <{ handle c with h }> --> <{ handle c' with h }>
