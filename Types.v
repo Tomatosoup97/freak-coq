@@ -160,6 +160,8 @@ Proof.
   induction H0; intros; eauto.
 Qed.
 
+Hint Resolve weakening : core.
+
 Lemma weakening_v_empty : forall Gamma v A,
      empty |-v v : A  ->
      Gamma |-v v : A.
@@ -186,4 +188,8 @@ Proof.
   eapply weakening.
   discriminate.
 Qed.
+
+Hint Resolve weakening_empty : core.
+Hint Resolve weakening_h_empty : core.
+Hint Resolve weakening_v_empty : core.
 

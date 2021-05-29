@@ -43,7 +43,10 @@ with subst (x : string) (s : value) (c: comp) : comp :=
       if x =?s y
       then <{ let y <- [x:=s]c c1 in c2 }>
       else <{ let y <- [x:=s]c c1 in [x:=s]c c2 }>
-  | <{ do y <- op @ v in c }> => <{ do y <- op @ ([x:=s]v v) in ([x:=s]c c) }>
+  | <{ do y <- op @ v in c }> =>
+      if x =?s y
+      then <{ do y <- op @ ([x:=s]v v) in c }>
+      else <{ do y <- op @ ([x:=s]v v) in ([x:=s]c c) }>
   | <{ handle c with h }> => <{ handle ([x:=s]c c) with ([x:=s]h h) }>
   end
 where "'[' x ':=' s ']c' c" := (subst x s c) (in custom freak).
