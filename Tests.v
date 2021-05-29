@@ -2,7 +2,7 @@ Set Warnings "-notation-overridden,-parsing".
 From Coq Require Import Strings.String.
 
 From Freak Require Import Language.
-From Freak Require Import Map.
+From Freak Require Import Maps.
 From Freak Require Import Semantics.
 From Freak Require Import Opt.
 
@@ -25,6 +25,7 @@ Definition Get : string := "Get".
 Hint Unfold rnat : core.
 
 (* Test lambda calculus *)
+
 
 Example eval_nat: rnat 42 -->* rnat 42.
 Proof. normalize. Qed.
