@@ -1,6 +1,6 @@
 Set Warnings "-notation-overridden,-parsing".
 From Coq Require Import Strings.String.
-
+From Freak Require Import Sets.
 From Freak Require Import Maps.
 
 (* Syntax *)
@@ -170,5 +170,12 @@ Fixpoint find_handler (h:handler) (op:string) : option algebraic_op :=
       if op =?s (opL algop)
       then Some algop
       else find_handler h op
+  end.
+
+Fixpoint get_handler_ops (h:handler) : StrSet :=
+  match h with
+  | handler_return hr => StrSets.empty
+  | handler_op algop h =>
+      StrSets.add (opL algop) (get_handler_ops h)
   end.
 

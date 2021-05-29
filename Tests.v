@@ -97,7 +97,6 @@ Definition state_handler : handler := <{
     |o # Put , s' , k |-> return (\s ->
          let k' <- k true in k' s'
     );
-
     |o # Get , s' , k |-> return (\s ->
          let k' <- k s in k' s
     );
