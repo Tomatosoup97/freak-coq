@@ -179,3 +179,15 @@ Fixpoint get_handler_ops (h:handler) : StrSet :=
       StrSets.add (opL algop) (get_handler_ops h)
   end.
 
+Lemma find_handler_op_label :
+  forall h op a,
+  find_handler h op = Some a -> op = opL a.
+Proof.
+  induction h.
+  - intros. simpl in H. discriminate.
+  - intros. simpl in H.
+    destruct (eqb_stringP op (opL a)).
+    + inversion H. subst. reflexivity.
+    + apply IHh. apply H.
+Qed.
+
