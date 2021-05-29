@@ -227,3 +227,5 @@ Proof.
     + apply Hxy.
 Qed.
 
+Hint Resolve inclusion_update : core.
+

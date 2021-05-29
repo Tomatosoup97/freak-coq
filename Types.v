@@ -112,3 +112,78 @@ Hint Constructors v_has_type : core.
 Hint Constructors c_has_type : core.
 Hint Constructors h_has_type : core.
 
+Lemma weakening_v : forall Gamma Gamma' v A,
+     inclusion Gamma Gamma' ->
+     Gamma  |-v v : A  ->
+     Gamma' |-v v : A.
+Proof.
+  intros.
+  generalize dependent Gamma'.
+  induction H0;
+  (* solve all basic cases *)
+  eauto.
+  (* last case: lambda *)
+  intros.
+  apply inclusion_update with (x := x) (vx := A)in H0.
+  apply T_Lam.
+  (* TODO: mutually recursive lemmas? *)
+  admit.
+Admitted.
+
+Hint Resolve weakening_v : core.
+
+Lemma weakening_h : forall Gamma Gamma' h A,
+     inclusion Gamma Gamma' ->
+     Gamma  |-h h : A  ->
+     Gamma' |-h h : A.
+Proof.
+  intros.
+  generalize dependent Gamma'.
+  induction H0. intros.
+  eapply T_Handler.
+  + intros.
+    (* TODO: mutually recursive lemmas? *)
+    admit.
+  + admit.
+  + apply H1.
+Admitted.
+
+Hint Resolve weakening_h : core.
+
+Lemma weakening : forall Gamma Gamma' c C,
+     inclusion Gamma Gamma' ->
+     Gamma  |-c c : C  ->
+     Gamma' |-c c : C.
+Proof.
+  intros.
+  generalize dependent Gamma'.
+  induction H0; intros; eauto.
+Qed.
+
+Lemma weakening_v_empty : forall Gamma v A,
+     empty |-v v : A  ->
+     Gamma |-v v : A.
+Proof.
+  intros Gamma t T.
+  eapply weakening_v.
+  discriminate.
+Qed.
+
+Lemma weakening_h_empty : forall Gamma h A,
+     empty |-h h : A  ->
+     Gamma |-h h : A.
+Proof.
+  intros Gamma t T.
+  eapply weakening_h.
+  discriminate.
+Qed.
+
+Lemma weakening_empty : forall Gamma c C,
+     empty |-c c : C  ->
+     Gamma |-c c : C.
+Proof.
+  intros Gamma t T.
+  eapply weakening.
+  discriminate.
+Qed.
+
