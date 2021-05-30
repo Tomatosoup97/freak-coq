@@ -185,10 +185,68 @@ Proof.
       apply IHc. rewrite update_permute; auto.
 Qed.
 
+Hint Resolve substitution_lemma : core.
+
 Theorem preservation : forall c c' C,
   empty |-c c : C ->
   c --> c' ->
   empty |-c c' : C.
 Proof.
+  intros c c' C HC. generalize dependent c'.
+  remember empty as Gamma.
+  induction HC;
+  intros c' Hs; subst.
+  - (* return *) inversion Hs.
+  - (* if *) inversion Hs; subst; eauto.
+  - (* let *)
+    forward IHHC1. { reflexivity. }
+    inversion Hs; subst.
+    + (* let progress *) eauto.
+    + (* let return *)
+      eapply substitution_lemma.
+      * apply HC2.
+      * inversion HC1. apply H2.
+    + (* let op *)
+      rename c0 into c1.
+      admit.
+  - (* app *)
+    inversion Hs; subst.
+    inversion H; subst.
+    eapply substitution_lemma; eauto.
+  - (* handle *)
+    forward IHHC. { reflexivity. }
+    inversion Hs; clear Hs; subst.
+    + eauto.
+    + inversion H; subst.
+      assert (Hx0: x = x0). { unfold x, x0. reflexivity. }
+      assert (Hcr0: cr = cr0). { unfold cr, cr0. reflexivity. }
+      rewrite <- Hx0 in *. rewrite <- Hcr0 in *.
+      eapply substitution_lemma.
+      apply H5.
+      inversion HC; subst. apply H4.
+    +
+      (*
+      eapply substitution_lemma.
+      * eapply substitution_lemma.
+        -- inversion H; clear H; subst.
+           eapply H3.
+           ++ destruct algop.
+              apply H2.
+           ++ inversion HC; subst.
+              eapply H9.
+       *)
+
+      inversion H. inversion HC.
+      destruct algop. clear H HC.
+      assert (Hsign: S0 = S). { admit. } (* TODO *)
+      subst. simpl in *.
+      eapply substitution_lemma.
+      * eapply substitution_lemma.
+        eapply H3. eapply H2.
+        apply H13. apply H15.
+      * admit.
+    + admit.
+  - (* op *)
+    admit.
 Admitted.
 
