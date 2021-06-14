@@ -112,6 +112,11 @@ Hint Constructors v_has_type : core.
 Hint Constructors c_has_type : core.
 Hint Constructors h_has_type : core.
 
+Ltac prove_weakening H0 Gamma' := intros;
+  generalize dependent Gamma';
+  induction H0;
+  intros; eauto.
+
 Lemma weakening_v : forall Gamma Gamma' v A,
      inclusion Gamma Gamma' ->
      Gamma  |-v v : A  ->
@@ -120,22 +125,11 @@ Lemma weakening_v : forall Gamma Gamma' v A,
 with weakening_c : forall Gamma Gamma' c C,
      inclusion Gamma Gamma' ->
      Gamma  |-c c : C  ->
-     Gamma' |-c c : C
-.
+     Gamma' |-c c : C.
 Proof.
-  (* weakening_v proof *)
-  ***
-  intros.
-  generalize dependent Gamma'.
-  induction H0;
-  eauto.
-
-  (* weakening proof *)
-  ***
-  intros.
-  generalize dependent Gamma'.
-  induction H0; intros; eauto.
-(* Somehow can't close this proof, even tho it has all goals finished *)
+  prove_weakening H0 Gamma'.
+  prove_weakening H0 Gamma'.
+(* TODO: Somehow I can't close this proof, even tho it has all goals finished *)
 Admitted.
 
 
@@ -150,32 +144,19 @@ with weakening_handler : forall Gamma Gamma' h C,
      Gamma' |-h h : C
 .
 Proof.
-  (* weakening proof *)
   ***
-  intros.
-  generalize dependent Gamma'.
-  induction H0;
-  eauto.
+  prove_weakening H0 Gamma'.
 
-  (* weakening_h proof *)
   ***
   intros.
   generalize dependent Gamma'.
   induction H0. intros.
   eapply T_Handler.
-  + intros. eauto.
-    eapply weakening with (Gamma := (p |-> Ai; k |-> <{ Bi :-> B ! D' }>; Gamma)). {
-        simple_inclusion.
-    }
-    eapply H.
-    2: apply H4.
-    auto.
-  + apply weakening with (Gamma := (get_hreturn_var (get_hreturn h) |-> A; Gamma)). {
-        simple_inclusion.
-    }
-    apply H0.
-  + apply H1.
-(* Somehow can't close this proof, even tho it has all goals finished *)
+  + intros. eapply weakening.
+    2: eapply H. 2: apply H3. 2: apply H4. auto.
+  + eapply weakening. 2: apply H0. auto.
+  + auto.
+(* TODO: Somehow I can't close this proof, even tho it has all goals finished *)
 Admitted.
 
 Lemma weakening_h : forall Gamma Gamma' h C,
@@ -188,18 +169,10 @@ Proof.
   generalize dependent Gamma'.
   induction H0. intros.
   eapply T_Handler.
-  + intros. eauto.
-    eapply weakening with (Gamma := (p |-> Ai; k |-> <{ Bi :-> B ! D' }>; Gamma)). {
-        simple_inclusion.
-    }
-    eapply H.
-    2: apply H4.
-    auto.
-  + apply weakening with (Gamma := (get_hreturn_var (get_hreturn h) |-> A; Gamma)). {
-        simple_inclusion.
-    }
-    apply H0.
-  + apply H1.
+  + intros. eapply weakening.
+    2: eapply H. 2: apply H3. 2: apply H4. auto.
+  + eapply weakening. 2: apply H0. auto.
+  + auto.
 Qed.
 
 Lemma weakening_v_empty : forall Gamma v A,
