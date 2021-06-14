@@ -83,8 +83,8 @@ Proof.
   - (* Do op *)
     right. right.
     repeat eexists.
-    (* apply H1. *)
-    admit.
+    assert (Hdelta: D0 = D). { admit. } (* TODO *)
+    subst. auto.
 Admitted.
 
 Theorem preservation : forall c c' C,
@@ -108,7 +108,11 @@ Proof.
       * inversion HC1. apply H2.
     + (* let op *)
       rename c0 into c1.
-      admit.
+      inversion HC1. subst. eapply T_Op; subst; eauto.
+      eapply T_Let. apply H8.
+      apply weakening with (Gamma := (x |-> A)).
+      * apply inclusion_update.  apply inclusion_empty.
+      * auto.
   - (* app *)
     inversion Hs; subst.
     inversion H; subst.
@@ -124,29 +128,33 @@ Proof.
       eapply substitution_lemma.
       apply H5.
       inversion HC; subst. apply H4.
-    +
-      (*
-      eapply substitution_lemma.
-      * eapply substitution_lemma.
-        -- inversion H; clear H; subst.
-           eapply H3.
-           ++ destruct algop.
-              apply H2.
-           ++ inversion HC; subst.
-              eapply H9.
-       *)
-
-      inversion H. inversion HC.
+    + inversion H; subst.
+      inversion HC; subst.
       destruct algop. clear H HC.
       assert (Hsign: S0 = S). { admit. } (* TODO *)
       subst. simpl in *.
       eapply substitution_lemma.
       * eapply substitution_lemma.
         eapply H3. eapply H2.
-        apply H13. apply H15.
-      * admit.
-    + admit.
-  - (* op *)
-    admit.
+        apply H10. apply H12.
+      * apply T_Lam. eapply T_Handle; eauto.
+        eapply T_Handler; eauto.
+        -- intros. eapply weakening.
+           2: eapply H3; eauto.
+           repeat apply inclusion_update. apply inclusion_empty.
+        -- unfold cr in H6. unfold x in H6.
+           eapply weakening.
+           2: apply H6.
+           apply inclusion_update. apply inclusion_empty.
+    + inversion H. subst. inversion HC. subst.
+      econstructor; eauto.
+      eapply T_Handle.
+      2: apply H13.
+      eapply weakening_h.
+      2: apply H.
+      apply inclusion_empty.
+      assert (Hdelta: D0 = D'). { admit. } (* TODO *)
+      subst. apply H14.
+  - inversion Hs.
 Admitted.
 

@@ -115,52 +115,92 @@ Hint Constructors h_has_type : core.
 Lemma weakening_v : forall Gamma Gamma' v A,
      inclusion Gamma Gamma' ->
      Gamma  |-v v : A  ->
-     Gamma' |-v v : A.
+     Gamma' |-v v : A
+
+with weakening_c : forall Gamma Gamma' c C,
+     inclusion Gamma Gamma' ->
+     Gamma  |-c c : C  ->
+     Gamma' |-c c : C
+.
 Proof.
+  (* weakening_v proof *)
+  ***
   intros.
   generalize dependent Gamma'.
   induction H0;
-  (* solve all basic cases *)
   eauto.
-  (* last case: lambda *)
+
+  (* weakening proof *)
+  ***
   intros.
-  apply inclusion_update with (x := x) (vx := A)in H0.
-  apply T_Lam.
-  (* TODO: mutually recursive lemmas? *)
-  admit.
+  generalize dependent Gamma'.
+  induction H0; intros; eauto.
+(* Somehow can't close this proof, even tho it has all goals finished *)
 Admitted.
 
-Hint Resolve weakening_v : core.
 
-Lemma weakening_h : forall Gamma Gamma' h A,
+Lemma weakening : forall Gamma Gamma' c C,
      inclusion Gamma Gamma' ->
-     Gamma  |-h h : A  ->
-     Gamma' |-h h : A.
+     Gamma  |-c c : C  ->
+     Gamma' |-c c : C
+
+with weakening_handler : forall Gamma Gamma' h C,
+     inclusion Gamma Gamma' ->
+     Gamma  |-h h : C  ->
+     Gamma' |-h h : C
+.
+Proof.
+  (* weakening proof *)
+  ***
+  intros.
+  generalize dependent Gamma'.
+  induction H0;
+  eauto.
+
+  (* weakening_h proof *)
+  ***
+  intros.
+  generalize dependent Gamma'.
+  induction H0. intros.
+  eapply T_Handler.
+  + intros. eauto.
+    eapply weakening with (Gamma := (p |-> Ai; k |-> <{ Bi :-> B ! D' }>; Gamma)). {
+        repeat apply inclusion_update. apply H2.
+    }
+    eapply H.
+    2: apply H4.
+    auto.
+  + apply weakening with (Gamma := (get_hreturn_var (get_hreturn h) |-> A; Gamma)). {
+        apply inclusion_update. apply H2.
+    }
+    apply H0.
+  + apply H1.
+(* Somehow can't close this proof, even tho it has all goals finished *)
+Admitted.
+
+Lemma weakening_h : forall Gamma Gamma' h C,
+     inclusion Gamma Gamma' ->
+     Gamma  |-h h : C  ->
+     Gamma' |-h h : C
+.
 Proof.
   intros.
   generalize dependent Gamma'.
   induction H0. intros.
   eapply T_Handler.
-  + intros.
-    (* TODO: mutually recursive lemmas? *)
-    admit.
-  + admit.
+  + intros. eauto.
+    eapply weakening with (Gamma := (p |-> Ai; k |-> <{ Bi :-> B ! D' }>; Gamma)). {
+        repeat apply inclusion_update. apply H2.
+    }
+    eapply H.
+    2: apply H4.
+    auto.
+  + apply weakening with (Gamma := (get_hreturn_var (get_hreturn h) |-> A; Gamma)). {
+        apply inclusion_update. apply H2.
+    }
+    apply H0.
   + apply H1.
-Admitted.
-
-Hint Resolve weakening_h : core.
-
-Lemma weakening : forall Gamma Gamma' c C,
-     inclusion Gamma Gamma' ->
-     Gamma  |-c c : C  ->
-     Gamma' |-c c : C.
-Proof.
-  intros.
-  generalize dependent Gamma'.
-  induction H0; intros; eauto.
 Qed.
-
-Hint Resolve weakening : core.
 
 Lemma weakening_v_empty : forall Gamma v A,
      empty |-v v : A  ->
@@ -171,25 +211,5 @@ Proof.
   discriminate.
 Qed.
 
-Lemma weakening_h_empty : forall Gamma h A,
-     empty |-h h : A  ->
-     Gamma |-h h : A.
-Proof.
-  intros Gamma t T.
-  eapply weakening_h.
-  discriminate.
-Qed.
-
-Lemma weakening_empty : forall Gamma c C,
-     empty |-c c : C  ->
-     Gamma |-c c : C.
-Proof.
-  intros Gamma t T.
-  eapply weakening.
-  discriminate.
-Qed.
-
-Hint Resolve weakening_empty : core.
-Hint Resolve weakening_h_empty : core.
 Hint Resolve weakening_v_empty : core.
 

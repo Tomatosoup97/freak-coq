@@ -3,6 +3,7 @@ From Freak Require Import Maps.
 From Freak Require Import Language.
 From Freak Require Import Subst.
 From Freak Require Import Types.
+From Freak Require Import Sets.
 
 Ltac forward_gen H tac :=
   match type of H with
@@ -28,6 +29,7 @@ with substitution_lemma_h : forall Gamma x A h v B,
   x |-> A ; Gamma |-h h : B ->
   empty |-v v : A ->
   Gamma |-h [x:=v]h h : B.
+
 Proof.
   (* substitution_lemma proof *)
   ***
@@ -99,13 +101,37 @@ Proof.
     simpl in *.
     destruct (get_hreturn h) eqn:Hret. simpl in *.
     unfold x0, cr in *. clear x0 cr.
-    destruct ((x =?s op) || (x =?s p) || (x =?s k)) eqn:Evar; subst.
-    + eapply T_Handler; eauto.
-      (* TODO *)
-      * intros.
+    destruct (eqb_stringP x p).
+    + subst. simpl.
+      eapply T_Handler.
+      * (* missing p |-> A apparently? *)
         admit.
-      * clear H0 H2. rewrite Hret. simpl. admit.
-      * admit.
-    + eapply T_Handler; eauto; admit.
+      * rewrite Hret. clear H0 H2 Hret.
+        unfold get_hreturn_var.
+        unfold get_hreturn_comp.
+        (* missing p |-> A apparently? *)
+        admit.
+      * apply subset_diff.
+    + destruct (eqb_stringP x k); subst; simpl.
+      * eapply T_Handler.
+        -- (* missing k |-> A apparently? *)
+        admit.
+        -- rewrite Hret. clear H0 H2 Hret.
+           unfold get_hreturn_var.
+           unfold get_hreturn_comp.
+           (* missing k |-> A apparently? *)
+           admit.
+        -- apply subset_diff.
+      * econstructor.
+        -- (* missing x |-> A apparently? *)
+        admit.
+        -- clear H0 H2 Hret.
+           (* missing x |-> A apparently? *)
+           admit.
+        -- apply subset_diff.
 Admitted.
+
+Check substitution_lemma.
+Check substitution_lemma_v.
+Check substitution_lemma_h.
 

@@ -27,7 +27,7 @@ with subst_h (x : string) (s : value) (h: handler) : handler :=
   | <{ |r #return y -> c }> =>
       if x =?s y then h else <{ |r #return y -> [x:=s]c c }>
   | <{ |o # op , p , k |-> c ; h }> =>
-      if (x =?s op) || (x =?s p) || (x =?s k)
+      if (x =?s p) || (x =?s k)
       then h
       else <{ |o # op , p , k |-> [x:=s]c c ; [x:=s]h h }>
   end
