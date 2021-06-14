@@ -165,13 +165,13 @@ Proof.
   eapply T_Handler.
   + intros. eauto.
     eapply weakening with (Gamma := (p |-> Ai; k |-> <{ Bi :-> B ! D' }>; Gamma)). {
-        repeat apply inclusion_update. apply H2.
+        simple_inclusion.
     }
     eapply H.
     2: apply H4.
     auto.
   + apply weakening with (Gamma := (get_hreturn_var (get_hreturn h) |-> A; Gamma)). {
-        apply inclusion_update. apply H2.
+        simple_inclusion.
     }
     apply H0.
   + apply H1.
@@ -190,13 +190,13 @@ Proof.
   eapply T_Handler.
   + intros. eauto.
     eapply weakening with (Gamma := (p |-> Ai; k |-> <{ Bi :-> B ! D' }>; Gamma)). {
-        repeat apply inclusion_update. apply H2.
+        simple_inclusion.
     }
     eapply H.
     2: apply H4.
     auto.
   + apply weakening with (Gamma := (get_hreturn_var (get_hreturn h) |-> A; Gamma)). {
-        apply inclusion_update. apply H2.
+        simple_inclusion.
     }
     apply H0.
   + apply H1.

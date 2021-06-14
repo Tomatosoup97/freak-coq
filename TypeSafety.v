@@ -111,7 +111,7 @@ Proof.
       inversion HC1. subst. eapply T_Op; subst; eauto.
       eapply T_Let. apply H8.
       apply weakening with (Gamma := (x |-> A)).
-      * apply inclusion_update.  apply inclusion_empty.
+      * simple_inclusion.
       * auto.
   - (* app *)
     inversion Hs; subst.
@@ -141,18 +141,18 @@ Proof.
         eapply T_Handler; eauto.
         -- intros. eapply weakening.
            2: eapply H3; eauto.
-           repeat apply inclusion_update. apply inclusion_empty.
+           simple_inclusion.
         -- unfold cr in H6. unfold x in H6.
            eapply weakening.
            2: apply H6.
-           apply inclusion_update. apply inclusion_empty.
+           simple_inclusion.
     + inversion H. subst. inversion HC. subst.
       econstructor; eauto.
       eapply T_Handle.
       2: apply H13.
       eapply weakening_h.
       2: apply H.
-      apply inclusion_empty.
+      simple_inclusion.
       assert (Hdelta: D0 = D'). { admit. } (* TODO *)
       subst. apply H14.
   - inversion Hs.

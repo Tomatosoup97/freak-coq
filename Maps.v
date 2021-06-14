@@ -237,5 +237,5 @@ Qed.
 Hint Resolve inclusion_update : core.
 Hint Resolve inclusion_empty : core.
 
-Ltac simple_inclusion := repeat apply inclusion_update; auto with inclusion_empty.
+Ltac simple_inclusion := repeat apply inclusion_update; auto using inclusion_empty.
 
