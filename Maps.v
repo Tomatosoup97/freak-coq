@@ -227,5 +227,15 @@ Proof.
     + apply Hxy.
 Qed.
 
+Lemma inclusion_empty :
+  forall (A : Type) (m : partial_map A), inclusion empty m.
+Proof.
+  unfold inclusion.
+  intros. inversion H.
+Qed.
+
 Hint Resolve inclusion_update : core.
+Hint Resolve inclusion_empty : core.
+
+Ltac simple_inclusion := repeat apply inclusion_update; auto with inclusion_empty.
 
